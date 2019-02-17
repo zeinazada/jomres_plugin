@@ -1,0 +1,142 @@
+<patTemplate:tmpl name="pageoutput" unusedvars="strip">
+<style type="text/css">
+	label.valid {
+		width: 24px;
+		height: 24px;
+		background: url(/jomres/assets/images/valid.png) center center no-repeat;
+		display: inline-block;
+		text-indent: -9999px;
+	}
+
+	label.error {
+		font-weight: bold;
+		color: red;
+		padding: 2px 8px;
+		margin-top: 2px;
+	}
+	.ui-datepicker{ z-index: 99999 !important ;}
+</style>
+
+
+<script type="text/javascript">
+<!--
+var start_id = '';
+var end_id = '';
+
+jomresJquery(document).ready(function() {
+	jomresJquery('form[name="randomBookingsForm"]').attr('novalidate', 'novalidate'); // Disable html5 validation
+	start_id = jomresJquery('[name="start_date_input"]').attr("id");
+	end_id = jomresJquery('[name="end_date_input"]').attr("id");
+
+	jomresJquery('#'+start_id).on( "change", function() {
+		setEndDate();
+		setTimeout(function() {
+			jomresJquery('#'+end_id).datepicker('show');
+		},15);
+	});
+	
+	jomresJquery('form[name="randomBookingsForm"]').validate( {
+		rules: {
+			start_date_input: {
+				required: true
+			},
+			end_date_input: {
+				required: true
+			},
+			occupancy: {
+				required: true,
+				min: 0,
+				max:100
+			},
+			delete_old: {
+				required: true,
+				min: 0,
+				max:1
+			}
+		},
+		submitHandler: function(form) {
+			jomresJquery(form).validate();
+			if (!jomresJquery(form).valid()) {
+				return;
+			}
+		    form.submit();
+		},
+		highlight: function (label) {
+			jomresJquery(label).closest('.control-group').addClass('error');
+		},
+		success: function (label) {
+			label
+			.text('OK!').addClass('valid')
+			.closest('.form-group').addClass('success');
+		}
+	});
+});
+//=================================================
+
+function setEndDate() 
+{
+	var nextDayDate = jomresJquery('#'+start_id).datepicker('getDate', '+1d');
+	var endDate = jomresJquery('#'+end_id).datepicker('getDate');
+	nextDayDate.setDate(nextDayDate.getDate() + 1);
+	
+	if (nextDayDate>endDate) {
+		jomresJquery('#'+end_id).datepicker('setDate', nextDayDate);
+	}
+	jomresJquery('#'+end_id).datepicker('option', {minDate: nextDayDate});
+}
+
+
+//-->
+</script>
+
+<br>
+
+<h2 class="page-header">{RANDOM_BOOKING_TITLE}</h2>
+
+<label class="col-md-2 control-label" for="review_title">{_JOMRES_REVIEWS_TITLE}</label>
+<form  action="{JOMRES_SITEPAGE_URL_NOSEF}" method="post" id="randomBookingsForm" name="randomBookingsForm" class="form-horizontal" >
+	
+		
+		<div  class="control-group" >
+			<div class="control-group">
+				<label class="col-md-2 control-label" for="start_date_input">{START_DATE_LABEL}</label>
+
+				<div class="controls">
+					{START_DATE_INPUT}
+				</div>
+			</div>
+			
+			<div class="control-group">
+				<label class="col-md-2 control-label" for="end_date_input">{END_DATE_LABEL}</label>
+
+				<div class="controls">
+					{END_DATE_INPUT}
+				</div>
+			</div>
+			
+			<div class="control-group">
+				<label class="col-md-2 control-label" for="occupancy">{MINIMUM_OCCUPANCY}</label>
+				<div class="controls">
+					<input class="form-control" type="number" min="0" max="100" name="occupancy" value="0" placeholder="{MINIMUM_OCCUPANCY}">
+				</div>
+			</div>
+			
+			<div class="control-group">
+				<label class="control-label" for="delete_old">{DELETE_OLD_BOOKING_LABEL}</label>
+				<div class="controls">
+					{DELETE_OLD_BOOKING_INPUT}
+				</div>
+			</div>
+
+			<div class="form-actions">
+				<div class="col-md-10 col-md-offset-2">
+					<button type="submit" class="btn btn-md btn-primary"><i class="fa fa-check"></i>{GENERATE_LABEL}</button>
+				</div>
+			</div>
+		</div>
+<input type="hidden" name="property_uid" value="{PROPERTY_ID}">
+<input type="hidden" name="task" value="create_random_bookings">
+<input type="hidden" name="no_html" value="1">
+
+</form>
+</patTemplate:tmpl>
